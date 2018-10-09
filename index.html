@@ -124,10 +124,14 @@
 				model.children[0].children[0].children[0].children[7].rotation.z -= 0.4;
 				model.children[0].children[0].children[0].children[8].rotation.z += 0.4;
 				model.children[0].children[0].children[0].children[9].rotation.z -= 0.4;
-				model.position.z += ySpeed;
-				model.position.x += xSpeed;
-				model.rotation.x = ySpeed;
-				model.rotation.z = -xSpeed;
+				model.position.z += model.rotation.x;
+				model.position.x -= model.rotation.z;
+				if (Math.abs(model.rotation.x) > 0.005) {
+					model.rotation.x -= (model.rotation.x < 0 ? -0.001 : 0.001);
+				}
+				if (Math.abs(model.rotation.z) > 0.005) {
+					model.rotation.z -= (model.rotation.z < 0 ? -0.001 : 0.001);
+				}
 				
 				renderer.render( scene, camera );
 			};
@@ -138,13 +142,13 @@
 			    var keyCode = event.which;
 			    console.log(keyCode);
 			    if (keyCode == 40) {
-			        ySpeed += 0.01;
+			        model.rotation.x += 0.01;
 			    } else if (keyCode == 38) {
-			        ySpeed -= 0.01;
+			        model.rotation.x -= 0.01;
 			    } else if (keyCode == 37) {
-			        xSpeed -= 0.01;
+			        model.rotation.z += 0.01;
 			    } else if (keyCode == 39) {
-			        xSpeed += 0.01;
+			        model.rotation.z -= 0.01;
 			    } else if (keyCode == 32) {
 			        model.position.set(0, 0, 0);
 			    }

@@ -73,6 +73,9 @@
 		<script src="js/three.js"></script>
 		<script src="js/GLTFLoader.js"></script>
 		<script>
+			var xSpeed = 0.0;
+			var ySpeed = 0.0;
+
 			var clock = new THREE.Clock();
 			var scene = new THREE.Scene();
 			var model;
@@ -121,11 +124,30 @@
 				model.children[0].children[0].children[0].children[7].rotation.z -= 0.4;
 				model.children[0].children[0].children[0].children[8].rotation.z += 0.4;
 				model.children[0].children[0].children[0].children[9].rotation.z -= 0.4;
-				console.log(model.position.y);
-				if (model.position.y > 10 || model.position.y < 6)
-					y_sp = -y_sp;
-				model.position.y += y_sp;
+				model.position.z += ySpeed;
+				model.position.x += xSpeed;
+				model.rotation.x = ySpeed;
+				model.rotation.z = -xSpeed;
+				
 				renderer.render( scene, camera );
+			};
+
+			document.addEventListener("keydown", onDocumentKeyDown, false);
+			function onDocumentKeyDown(event) {
+
+			    var keyCode = event.which;
+			    console.log(keyCode);
+			    if (keyCode == 40) {
+			        ySpeed += 0.01;
+			    } else if (keyCode == 38) {
+			        ySpeed -= 0.01;
+			    } else if (keyCode == 37) {
+			        xSpeed -= 0.01;
+			    } else if (keyCode == 39) {
+			        xSpeed += 0.01;
+			    } else if (keyCode == 32) {
+			        model.position.set(0, 0, 0);
+			    }
 			};
 
 			animate();

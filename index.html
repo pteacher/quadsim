@@ -75,17 +75,26 @@
 		<script>
 			var xSpeed = 0.0;
 			var ySpeed = 0.0;
+			var rsp = 0.4;
+			var cube;
 
 			var clock = new THREE.Clock();
 			var scene = new THREE.Scene();
 			var model;
 			scene.background = new THREE.Color( 0xbfe3dd );
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 0.1, 1000 );
 			camera.position.y = 10;
 			scene.add( new THREE.AmbientLight( 0x404040 ) );
 			pointLight = new THREE.PointLight( 0xffffff, 1 );
 			pointLight.position.copy( camera.position );
 			scene.add( pointLight );
+			cube = new THREE.Mesh( new THREE.BoxGeometry( 20, 1, 20 ), new THREE.MeshLambertMaterial({ color: 0xff5555, transparent: true, opacity: 0.9}));
+			cube.position.y = 1;
+			cube.position.x = 0;
+			cube.position.z = -5;
+			var arrow;
+
+			scene.add(cube);
 			var renderer = new THREE.WebGLRenderer();
 			renderer.gammaOutput = true;
 			renderer.gammaFactor = 2.2;
@@ -107,8 +116,13 @@
 					model = gltf.scene;
 					model.position.y = 6;
 					scene.add( model );
-					console.log(gltf.animations);
-					
+					var vertexNormalsHelper = new THREE.VertexNormalsHelper( model, 300 );
+					model.add( vertexNormalsHelper );
+					var secondObject = cube;
+					firstObject = model;
+					firstBB = new THREE.Box3().setFromObject(firstObject);
+					secondBB = new THREE.Box3().setFromObject(secondObject);
+					animate();
 
 				}, undefined, function ( e ) {
 					console.error( e );
@@ -116,14 +130,19 @@
 
 			camera.position.z = 13;
 			y_sp = 0.01;
+			var firstObject;		
 
 			var animate = function () {
 				requestAnimationFrame( animate );
+				firstBB = new THREE.Box3().setFromObject(firstObject);
+				var collision = firstBB.intersectsBox(secondBB);
+				console.log(collision);
+
 				var delta = clock.getDelta();
-				model.children[0].children[0].children[0].children[6].rotation.z += 0.4;
-				model.children[0].children[0].children[0].children[7].rotation.z -= 0.4;
-				model.children[0].children[0].children[0].children[8].rotation.z += 0.4;
-				model.children[0].children[0].children[0].children[9].rotation.z -= 0.4;
+				model.children[0].children[0].children[0].children[6].rotation.z += rsp;
+				model.children[0].children[0].children[0].children[7].rotation.z -= rsp;
+				model.children[0].children[0].children[0].children[8].rotation.z += rsp;
+				model.children[0].children[0].children[0].children[9].rotation.z -= rsp;
 				model.position.z += model.rotation.x;
 				model.position.x -= model.rotation.z;
 				if (Math.abs(model.rotation.x) > 0.005) {
@@ -132,29 +151,53 @@
 				if (Math.abs(model.rotation.z) > 0.005) {
 					model.rotation.z -= (model.rotation.z < 0 ? -0.001 : 0.001);
 				}
-				
+				if (Math.abs(rsp - 0.4) > 0.005) {
+					rsp -= ((rsp - 0.4) < 0 ? -0.001 : 0.001);
+				}
+				model.position.y += (rsp - 0.4);
+				camera.lookAt(model.position);
 				renderer.render( scene, camera );
 			};
 
-			document.addEventListener("keydown", onDocumentKeyDown, false);
-			function onDocumentKeyDown(event) {
-
-			    var keyCode = event.which;
-			    console.log(keyCode);
-			    if (keyCode == 40) {
+			var map = {};
+			onkeydown = onkeyup = function(e){
+			    e = e || event; // to deal with IE
+			    console.log(e.keyCode)
+			    map[e.keyCode] = e.type == 'keydown';
+			    if (map[87]) {
+					rsp += 0.01;
+			    }
+			    if (map[83]) {
+					rsp -= 0.01;
+			    }
+			    if (map[65]) {
+					model.rotation.y += 0.05;
+			    }
+			    if (map[68]) {
+					model.rotation.y -= 0.05;
+			    }
+			    if (map[40]) {
 			        model.rotation.x += 0.01;
-			    } else if (keyCode == 38) {
+			    } 
+			    if (map[38]) {
 			        model.rotation.x -= 0.01;
-			    } else if (keyCode == 37) {
+			    } 
+			    if (map[37]) {
 			        model.rotation.z += 0.01;
-			    } else if (keyCode == 39) {
+			    } 
+			    if (map[39]) {
 			        model.rotation.z -= 0.01;
-			    } else if (keyCode == 32) {
+			    } 
+			    if (map[32]) {
 			        model.position.set(0, 0, 0);
 			    }
-			};
+			}
 
-			animate();
+			function add_cube(x, y, z) {
+				
+			}
+
+			
 		</script>
 	</body>
 </html>
